@@ -1,0 +1,19 @@
+# Full ledger stack: backend API + nginx-served frontend.
+# The frontend is the only public entrypoint; it proxies /api to the backend.
+# Secrets come from the backend's .env at runtime (never baked into images).
+
+services:
+  backend:
+    build: .
+    env_file: .env
+    expose:
+      - "3000" # internal only — reachable by the frontend as http://backend:3000
+    restart: unless-stopped
+
+  frontend:
+    build: ./client
+    ports:
+      - "8090:80" # open the app at http://localhost:8090
+    depends_on:
+      - backend
+    restart: unless-stopped
